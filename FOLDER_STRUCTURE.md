@@ -1,0 +1,66 @@
+# Layered folder structure for Branding Services API
+
+src/
+  routes/
+    auth.routes.js
+    user.routes.js
+    plan.routes.js
+    subscription.routes.js
+    payment.routes.js
+    design.routes.js
+    order.routes.js
+  controllers/
+    auth.controller.js
+    user.controller.js
+    plan.controller.js
+    subscription.controller.js
+    payment.controller.js
+    design.controller.js
+    order.controller.js
+  services/
+    auth.service.js
+    user.service.js
+    plan.service.js
+    subscription.service.js
+    payment.service.js
+    design.service.js
+    order.service.js
+  repositories/
+    user.repository.js
+    plan.repository.js
+    subscription.repository.js
+    payment.repository.js
+    design.repository.js
+    order.repository.js
+  middlewares/
+    auth.middleware.js
+    rbac.middleware.js
+    error.middleware.js
+    validate.middleware.js
+    rateLimit.middleware.js
+    cors.middleware.js
+    helmet.middleware.js
+  utils/
+    jwt.util.js
+    s3.util.js
+    razorpay.util.js
+    logger.util.js
+    response.util.js
+  models/
+    index.js
+    user.model.js
+    role.model.js
+    userRole.model.js
+    plan.model.js
+    subscription.model.js
+    payment.model.js
+    order.model.js
+    design.model.js
+
+config/
+  config.js
+  database.js
+
+app.js
+server.js
+.env.example
