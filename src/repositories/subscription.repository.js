@@ -8,7 +8,7 @@ class SubscriptionRepository {
   async delete(id) { return Subscription.destroy({ where: { id } }); }
   async findActiveByUserId(user_id) {
     return Subscription.findOne({
-      where: { user_id, status: 'active' },
+      where: { user_id, status: 'active', end_date: { [Op.gt]: new Date() } }, // need to add logic end date > now
       order: [['created_at', 'DESC']],
     });
   }

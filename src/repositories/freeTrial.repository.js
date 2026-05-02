@@ -6,6 +6,7 @@ class FreeTrialRepository {
   async findAll(query = {}) { return FreeTrial.findAll(query); }
   async update(id, data) { return FreeTrial.update(data, { where: { id } }); }
   async delete(id) { return FreeTrial.destroy({ where: { id } }); }
+  async findByUserId(user_id) { return FreeTrial.findOne({ where: { user_id } }); }
 }
 
 module.exports = new FreeTrialRepository();

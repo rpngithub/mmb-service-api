@@ -7,6 +7,13 @@ exports.create = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+exports.getActive = async (req, res, next) => {
+  try {
+    const plans = await planService.getActivePlans();
+    res.json(plans);
+  } catch (err) { next(err); }
+};
+
 exports.getAll = async (req, res, next) => {
   try {
     const plans = await planService.getAllPlans();

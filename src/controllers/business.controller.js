@@ -7,6 +7,13 @@ exports.create = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+exports.getActive = async (req, res, next) => {
+  try {
+    const businesses = await businessService.getActiveBusinesses();
+    res.json(businesses);
+  } catch (err) { next(err); }
+};
+
 exports.getAll = async (req, res, next) => {
   try {
     const businesses = await businessService.getAllBusinesses();

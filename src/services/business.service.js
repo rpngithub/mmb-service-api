@@ -7,6 +7,7 @@ class BusinessService {
   }
   async getBusinessById(mnemonic_id) { return businessRepository.findByMnemonicId(mnemonic_id); }
   async getAllBusinesses(query) { return businessRepository.findAll(query); }
+  async getActiveBusinesses() { return businessRepository.findAll({ where: { is_deleted: false } }); }
   async updateBusiness(mnemonic_id, data) { return businessRepository.updateByMnemonicId(mnemonic_id, data); }
   async deleteBusiness(mnemonic_id) { return businessRepository.deleteByMnemonicId(mnemonic_id); }
 }
