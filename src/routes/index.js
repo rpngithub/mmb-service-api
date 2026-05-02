@@ -8,7 +8,6 @@ const subscriptionRoutes = require('./subscription.routes');
 const designRoutes = require('./design.routes');
 // const orderRoutes = require('./order.routes');
 const businessRoutes = require('./business.routes');
-const freeTrialRoutes = require('./freeTrial.routes');
 const userBusinessRoutes = require('./userBusiness.routes');
 const profileRoutes = require('./profile.routes');
 const userDesignRoutes = require('./userDesign.routes');
@@ -24,7 +23,6 @@ router.use('/designs', designRoutes);
 
 // router.use('/orders', orderRoutes);
 router.use('/businesses', businessRoutes);
-router.use('/free-trials', freeTrialRoutes);
 router.use('/user-businesses', userBusinessRoutes);
 router.use('/profile', profileRoutes);
 router.use('/user-designs', userDesignRoutes);

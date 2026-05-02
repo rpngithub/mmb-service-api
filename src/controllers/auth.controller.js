@@ -1,5 +1,7 @@
 const bcrypt = require('bcrypt');
-const { generateAccessToken, generateRefreshToken } = require('../utils/jwt.util');
+const jwt = require('jsonwebtoken');
+const { generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../utils/jwt.util');
+const tokenBlacklistService = require('../services/tokenBlacklist.service');
 const User = require('../models/user.model');
 const userService = require('../services/user.service');
 const userOtpService = require('../services/userOtp.service');
@@ -58,7 +60,7 @@ exports.signin = async (req, res, next) => {
     const { email, password } = req.body;
     const user = await User.findOne({ where: { email } });
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
-    const valid = await bcrypt.compare(password, user.password);
+    const valid = await bcrypt.compare(password, user.password || '');
     if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
     req.user = user;
     next();
@@ -107,6 +109,18 @@ exports.completeSignIn = async (req, res, next) => {
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
     res.json({ accessToken });
+  } catch (err) { next(err); }
+};
+
+exports.logout = async (req, res, next) => {
+  try {
+    const token = req.token;
+    const decoded = jwt.decode(token);
+    if (decoded && decoded.jti) {
+      await tokenBlacklistService.blacklist(decoded.jti, new Date(decoded.exp * 1000));
+    }
+    res.clearCookie('refreshToken');
+    res.json({ message: 'Logged out successfully' });
   } catch (err) { next(err); }
 };
 
