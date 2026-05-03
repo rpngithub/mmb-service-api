@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const Subscription = require('../models/subscription.model');
 
 class SubscriptionRepository {
@@ -8,7 +9,7 @@ class SubscriptionRepository {
   async delete(id) { return Subscription.destroy({ where: { id } }); }
   async findActiveByUserId(user_id) {
     return Subscription.findOne({
-      where: { user_id, status: 'active', end_date: { [Op.gt]: new Date() } }, // need to add logic end date > now
+      where: { user_id, status: 'active', end_date: { [Op.gt]: new Date() } },
       order: [['created_at', 'DESC']],
     });
   }

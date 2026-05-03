@@ -23,7 +23,7 @@ exports.getAll = async (req, res, next) => {
 
 exports.getById = async (req, res, next) => {
   try {
-    const business = await businessService.getBusinessById(req.params.id);
+    const business = await businessService.getBusinessByMnemonic(req.params.id);
     if (!business) return res.status(404).json({ error: 'Business not found' });
     res.json(business);
   } catch (err) { next(err); }

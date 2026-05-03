@@ -8,7 +8,8 @@ const designPreferencesSchema = Joi.object({
 
 exports.createUserBusiness = Joi.object({
   user_id: Joi.number().integer().required(),
-  business_id: Joi.number().integer().required(),
+  business_id: Joi.number().integer().allow(null, -1), // -1 indicates 'Other'
+  business_other: Joi.string().allow('', null),
   brand_name: Joi.string().max(255).required(),
   description: Joi.string().allow('', null),
   email: Joi.string().email().allow('', null),
@@ -32,7 +33,8 @@ exports.createUserBusiness = Joi.object({
 });
 
 exports.updateUserBusiness = Joi.object({
-  business_id: Joi.number().integer(),
+  business_id: Joi.number().integer().allow(null, -1), // -1 indicates 'Other'
+  business_other: Joi.string().allow('', null),
   brand_name: Joi.string().max(255),
   description: Joi.string().allow('', null),
   email: Joi.string().email().allow('', null),

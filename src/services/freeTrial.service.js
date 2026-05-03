@@ -17,10 +17,26 @@ class FreeTrialService {
 
     const start_date = new Date();
     const end_date = new Date(start_date);
-    end_date.setDate(end_date.getDate() + 2); 
+    end_date.setDate(end_date.getDate() + 2); // 2 days trial
 
     return freeTrialRepository.create({ user_id: userId, start_date, end_date, is_active: true });
   }
+
+  async getActiveFreeTrialByUserId(user_id) {
+    const freeTrial = await freeTrialRepository.findByUserId(user_id);
+    // need to check expiry here as well in case user has an old free trial that is expired but not marked inactive
+    if (freeTrial && freeTrial.is_active) {
+      const now = new Date();
+      if (now <= new Date(freeTrial.end_date)) {
+        return freeTrial;
+      } else {
+        // mark the free trial as inactive if it has expired
+        await freeTrialRepository.update(freeTrial.id, { is_active: false });
+      }
+    }
+    return null;
+  }
+
 }
 
 module.exports = new FreeTrialService();
