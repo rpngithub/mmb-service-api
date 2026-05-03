@@ -1,14 +1,17 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('./index');
+const { populate } = require('dotenv');
 
 const Plan = sequelize.define('Plan', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   name: { type: DataTypes.STRING, allowNull: false },
   description: { type: DataTypes.TEXT },
+  original_price: { type: DataTypes.DECIMAL(10,2), allowNull: true },
   price: { type: DataTypes.DECIMAL(10,2), allowNull: false },
   duration: { type: DataTypes.INTEGER, allowNull: false },
   duration_unit: { type: DataTypes.ENUM('MONTH', 'YEAR'), allowNull: false },
   features: { type: DataTypes.JSONB },
+  popular: { type: DataTypes.BOOLEAN, defaultValue: false },
   is_deleted: { type: DataTypes.BOOLEAN, defaultValue: false },
 }, {
   timestamps: true,

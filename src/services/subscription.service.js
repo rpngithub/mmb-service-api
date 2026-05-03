@@ -14,6 +14,7 @@ class SubscriptionService {
   async getActiveSubscriptionByUserId(user_id) { return subscriptionRepository.findActiveByUserId(user_id); }
 
   async checkout(userId, planId) {
+    
     const plan = await planService.getPlanById(planId);
     if (!plan || plan.is_deleted) {
       const err = new Error('Plan not found');

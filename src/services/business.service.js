@@ -5,7 +5,8 @@ class BusinessService {
   async createBusiness(data) {
     return businessRepository.create({ ...data, mnemonic_id: 'BUS' + uuidv4() });
   }
-  async getBusinessById(mnemonic_id) { return businessRepository.findByMnemonicId(mnemonic_id); }
+  async getBusinessById(id) { return businessRepository.findById(id); }
+  async getBusinessByMnemonic(mnemonic_id) { return businessRepository.findByMnemonicId(mnemonic_id); }
   async getAllBusinesses(query) { return businessRepository.findAll(query); }
   async getActiveBusinesses() { return businessRepository.findAll({ where: { is_deleted: false } }); }
   async updateBusiness(mnemonic_id, data) { return businessRepository.updateByMnemonicId(mnemonic_id, data); }

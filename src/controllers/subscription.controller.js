@@ -1,23 +1,30 @@
 const subscriptionService = require('../services/subscription.service');
 const freeTrialService = require('../services/freeTrial.service');
+const userService = require('../services/user.service');
 
 exports.activateFreeTrial = async (req, res, next) => {
   try {
-    const freeTrial = await freeTrialService.activateFreeTrial(req.user.id);
+    const user = await userService.getUserByMnemonicId(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    const freeTrial = await freeTrialService.activateFreeTrial(user.id);
     res.status(201).json(freeTrial);
   } catch (err) { next(err); }
 };
 
 exports.checkout = async (req, res, next) => {
   try {
-    const result = await subscriptionService.checkout(req.user.id, req.body.plan_id);
+    const user = await userService.getUserByMnemonicId(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    const result = await subscriptionService.checkout(user.id, req.body.plan_id);
     res.status(201).json(result);
   } catch (err) { next(err); }
 };
 
 exports.verifyPayment = async (req, res, next) => {
   try {
-    const result = await subscriptionService.verifyPayment(req.user.id, req.body);
+    const user = await userService.getUserByMnemonicId(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    const result = await subscriptionService.verifyPayment(user.id, req.body);
     res.json(result);
   } catch (err) { next(err); }
 };

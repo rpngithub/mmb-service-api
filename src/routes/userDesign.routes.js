@@ -3,7 +3,7 @@ const router = express.Router();
 const authenticate = require('../middlewares/auth.middleware');
 const authorize = require('../middlewares/rbac.middleware');
 const validate = require('../middlewares/validate.middleware');
-const upload = require('../utils/multer.util');
+const {upload} = require('../utils/multer.util');
 const { createUserDesignSchema, updateUserDesignSchema, listQuerySchema } = require('../validators/userDesign.validator');
 const controller = require('../controllers/userDesign.controller');
 

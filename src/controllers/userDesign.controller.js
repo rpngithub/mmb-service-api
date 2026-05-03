@@ -4,6 +4,7 @@ const User = require('../models/user.model');
 const userDesignService = require('../services/userDesign.service');
 const userBusinessService = require('../services/userBusiness.service');
 const subscriptionService = require('../services/subscription.service');
+const freeTrialService = require('../services/freeTrial.service');
 
 // GET /user-designs/
 // USER role → own business designs only. ADMIN/DESIGNER → all, with optional query filters.
@@ -41,11 +42,13 @@ exports.create = async (req, res, next) => {
     if (!userBusiness) return res.status(404).json({ error: 'UserBusiness not found' });
 
     const subscription = await subscriptionService.getActiveSubscriptionByUserId(userBusiness.user_id);
-    if (!subscription) return res.status(400).json({ error: 'No active subscription found for this business' });
+    const freeTrial = await freeTrialService.getActiveFreeTrialByUserId(userBusiness.user_id);
+    if (!subscription && !freeTrial) return res.status(400).json({ error: 'No active subscription or free trial found for this business' });
 
     const results = await userDesignService.createFromFiles(req.files, {
       user_business_id: userBusiness.id,
-      subscription_id: subscription.id,
+      subscription_id: subscription ? subscription.id : null,
+      free_trial_id: freeTrial ? freeTrial.id : null,
       created_by: req.dbUser.id,
       description,
       visibility,

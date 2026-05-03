@@ -5,7 +5,8 @@ const UserBusiness = sequelize.define('UserBusiness', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     mnemonic_id: { type: DataTypes.STRING, allowNull: false, unique: true },
     user_id: { type: DataTypes.INTEGER, allowNull: false },
-    business_id: { type: DataTypes.INTEGER, allowNull: false },
+    business_id: { type: DataTypes.INTEGER, allowNull: true },
+    business_other: { type: DataTypes.STRING, allowNull: true }, // if business_id is 'Other', specify here
     brand_name: { type: DataTypes.STRING, allowNull: false },
     description: { type: DataTypes.TEXT, allowNull: true },
     email: { type: DataTypes.STRING, allowNull: true },
