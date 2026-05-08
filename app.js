@@ -13,7 +13,22 @@ const app = express();
 
 // Security Middlewares
 app.use(helmet());
-app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
+// Parse allowed origins from environment variable
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+  : [];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // allow non-browser requests
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
 
 // Logging
 app.use(morgan('combined'));
