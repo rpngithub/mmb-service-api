@@ -36,6 +36,7 @@ class SubscriptionService {
       user_id: userId,
       plan_id: planId,
       payment_gateway_order_id: razorpayOrder.id,
+      invoice_id: receipt,
       amount: plan.price,
       currency: 'INR',
       status: 'CREATED',
