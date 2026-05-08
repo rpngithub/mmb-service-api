@@ -9,9 +9,12 @@ const PORT = process.env.PORT || 3000;
     await sequelize.authenticate();
     console.log('Database connected!');
     await sequelize.sync();
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
+    if (require.main === module) {
+      app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+      });
+    }
+    module.exports = app;
   } catch (err) {
     console.error('Unable to connect to the database:', err);
     process.exit(1);
