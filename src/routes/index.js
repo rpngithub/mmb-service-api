@@ -14,6 +14,10 @@ const userDesignRoutes = require('./userDesign.routes');
 
 const router = express.Router();
 
+// need a ping endpoint for health checks
+router.get('/ping', (req, res) => {
+    res.json({ message: 'API is running' });
+});
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/plans', planRoutes);
