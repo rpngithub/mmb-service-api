@@ -4,6 +4,8 @@ const sequelize = require('./src/models/index');
 
 const PORT = process.env.PORT || 3000;
 
+module.exports = app;
+
 (async () => {
   try {
     await sequelize.authenticate();
@@ -14,7 +16,6 @@ const PORT = process.env.PORT || 3000;
         console.log(`Server running on port ${PORT}`);
       });
     }
-    module.exports = app;
   } catch (err) {
     console.error('Unable to connect to the database:', err);
     process.exit(1);
