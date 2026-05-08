@@ -39,7 +39,8 @@ exports.signup = async (req, res, next) => {
         console.log(`Generated OTP for ${mobile}: ${generatedOtp}`);
       }
       const otpRecord = await userOtpService.createOtp(generatedOtp, mobile, 10);
-      return res.status(201).json({ user_id: user.mnemonic_id, transaction_id: otpRecord.transaction_id });
+      // return res.status(201).json({ user_id: user.mnemonic_id, transaction_id: otpRecord.transaction_id });
+      return res.status(201).json({ user_id: user.mnemonic_id, transaction_id: otpRecord.transaction_id, otp: generatedOtp }); // Include OTP in response for testing purposes
     }
 
     // Step 2: verify OTP, activate user, proceed to completeSignIn
@@ -83,7 +84,8 @@ exports.signinMobile = async (req, res, next) => {
         console.log(`Generated OTP for ${mobile}: ${generatedOtp}`);
       }
       const otpRecord = await userOtpService.createOtp(generatedOtp, mobile, 10);
-      return res.json({ transaction_id: otpRecord.transaction_id });
+      // return res.json({ transaction_id: otpRecord.transaction_id });
+      return res.json({ transaction_id: otpRecord.transaction_id, otp: generatedOtp });
     }
 
     // Step 2: verify OTP, proceed to completeSignIn

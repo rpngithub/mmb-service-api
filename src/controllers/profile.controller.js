@@ -100,7 +100,8 @@ exports.updateMobile = async (req, res, next) => {
 
       const generatedOtp = otpGenerator.generateOTP();
       const otpRecord = await userOtpService.createOtp(generatedOtp, mobile, 10);
-      return res.json({ transaction_id: otpRecord.transaction_id });
+      // return res.json({ transaction_id: otpRecord.transaction_id });
+      return res.json({ transaction_id: otpRecord.transaction_id, otp: generatedOtp }); // return OTP in response for testing, should be removed in production
     }
 
     // Step 2: verify OTP and update mobile
