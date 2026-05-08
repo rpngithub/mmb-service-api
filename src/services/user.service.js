@@ -1,5 +1,5 @@
-const userRepository = require('../repositories/user.repository');
 const { v4: uuidv4 } = require('uuid');
+const userRepository = require('../repositories/user.repository');
 
 class UserService {
   async registerUser(data) {
