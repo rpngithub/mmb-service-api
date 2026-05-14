@@ -1,7 +1,7 @@
 const { Sequelize } = require('sequelize');
 const pg = require('pg');
 
-if (process.env.NODE_ENV === 'production' && process.env.DB_URL) {
+if ((process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging') && process.env.DB_URL) {
   console.log('Using production database');
   const sequelize = new Sequelize(
     process.env.DB_URL,

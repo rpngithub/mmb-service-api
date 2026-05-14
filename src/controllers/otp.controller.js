@@ -6,6 +6,7 @@ exports.requestOtp = async (req, res, next) => {
         const { send_to } = req.body; // mobile number to which OTP will be sent, can be changed based on requirements (e.g., email)
         const otp = otpGenerator.generateOTP();
         const otpData = await userOtpService.createOtp(otp, send_to);
+        const sendResult = await otpGenerator.sendOTP(send_to, otp);
         res.json({ message: 'OTP sent successfully', transaction_id: otpData.transaction_id }); // In production, you would not send OTP back in response. This is just for testing purposes.
     } catch (err) {
         next(err);

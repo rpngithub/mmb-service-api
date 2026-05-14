@@ -16,10 +16,10 @@ exports.getProfile = async (req, res, next) => {
     const response = { user };
 
     if (user.role === 'USER') {
-      
+
       const userBusiness = await userBusinessService.getUserBusinessByUserId(user.id);
       // need to get business details for frontend to determine if "Other" and display user_business_other
-      if (userBusiness && userBusiness.business_id  !== null && userBusiness.business_id !== -1) {
+      if (userBusiness && userBusiness.business_id !== null && userBusiness.business_id !== -1) {
         const businessDetails = await businessService.getBusinessById(userBusiness.business_id);
         response.userBusiness = {
           ...userBusiness.toJSON(),
@@ -56,6 +56,7 @@ exports.updateProfile = async (req, res, next) => {
     console.log('Received updateProfile request with body:', req.body);
 
     const { userBusiness, ...userFields } = req.body;
+    const response = {};
 
     // mobile is not allowed in this endpoint
     delete userFields.mobile;
@@ -68,6 +69,8 @@ exports.updateProfile = async (req, res, next) => {
 
     if (Object.keys(userFields).length > 0) {
       await userService.updateUser(user.id, userFields);
+      // return updated user data in response
+      response.user = await userService.getUserById(user.id);
     }
 
     if (userBusiness && Object.keys(userBusiness).length > 0) {
@@ -78,14 +81,20 @@ exports.updateProfile = async (req, res, next) => {
       if (userBusiness.business_id === -1) {
         userBusiness.business_id = null;
       }
-      await userBusinessService.upsertUserBusiness(user.id, userBusiness);
+      const ub = await userBusinessService.upsertUserBusiness(user.id, userBusiness);
+      const businessDetails = userBusiness.business_id ? await businessService.getBusinessById(userBusiness.business_id) : null;
+
+      response.userBusiness = {
+        ...ub.toJSON(),
+        business_name: businessDetails ? businessDetails.name : null,
+      };
     }
 
     if (req.files && req.files.length > 0) {
       await userAssetsService.createBulk(user.id, req.files.map(f => f.path));
     }
 
-    res.json({ message: 'Profile updated' });
+    res.json({ message: 'Profile updated', ...response });
   } catch (err) { next(err); }
 };
 
@@ -100,8 +109,15 @@ exports.updateMobile = async (req, res, next) => {
 
       const generatedOtp = otpGenerator.generateOTP();
       const otpRecord = await userOtpService.createOtp(generatedOtp, mobile, 10);
-      // return res.json({ transaction_id: otpRecord.transaction_id });
-      return res.json({ transaction_id: otpRecord.transaction_id, otp: generatedOtp }); // return OTP in response for testing, should be removed in production
+      if (process.env.NODE_ENV === 'production') {
+        const sendResult = await otpGenerator.sendOTP(mobile, generatedOtp);
+        console.log('OTP send result:', sendResult);
+        return res.json({ transaction_id: otpRecord.transaction_id });
+      } else {
+        console.log(`Generated OTP for ${mobile}: ${generatedOtp}`);
+        return res.json({ transaction_id: otpRecord.transaction_id, otp: generatedOtp }); // return OTP in response for testing, should be removed in production
+      }
+
     }
 
     // Step 2: verify OTP and update mobile

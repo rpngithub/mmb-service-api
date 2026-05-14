@@ -18,6 +18,7 @@ exports.updateSubscription = Joi.object({
 
 exports.checkout = Joi.object({
   plan_id: Joi.number().integer().positive().required(),
+  plan_duration_unit: Joi.string().valid('MONTH', 'YEAR').default('MONTH'), // 'MONTH' for monthly, 'YEAR' for yearly
 });
 
 exports.verifyPayment = Joi.object({
