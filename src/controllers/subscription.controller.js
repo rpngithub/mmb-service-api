@@ -15,7 +15,7 @@ exports.checkout = async (req, res, next) => {
   try {
     const user = await userService.getUserByMnemonicId(req.user.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
-    const result = await subscriptionService.checkout(user.id, req.body.plan_id);
+    const result = await subscriptionService.checkout(user.id, req.body.plan_id, req.body.plan_duration_unit || 'MONTH');
     res.status(201).json(result);
   } catch (err) { next(err); }
 };

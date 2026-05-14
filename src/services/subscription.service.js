@@ -13,7 +13,7 @@ class SubscriptionService {
   async deleteSubscription(id) { return subscriptionRepository.delete(id); }
   async getActiveSubscriptionByUserId(user_id) { return subscriptionRepository.findActiveByUserId(user_id); }
 
-  async checkout(userId, planId) {
+  async checkout(userId, planId, planDurationUnit = 'MONTH') {
     
     const plan = await planService.getPlanById(planId);
     if (!plan || plan.is_deleted) {
@@ -30,14 +30,24 @@ class SubscriptionService {
     }
 
     const receipt = `receipt_${userId}_${planId}_${Date.now()}`;
-    const razorpayOrder = await razorpayUtil.createOrder(plan.price, 'INR', receipt);
+    const planPrice = parseFloat(plan.price);
+    const quantity = planDurationUnit === 'MONTH' ? 1 : 10;
+    const totalPlanPrice = parseFloat((planPrice * quantity).toFixed(2));
+    const gstAmount = parseFloat((totalPlanPrice * 0.18).toFixed(2)); // Assuming 18% GST
+    const totalAmount = parseFloat((totalPlanPrice + gstAmount).toFixed(2));
+    const razorpayOrder = await razorpayUtil.createOrder(totalAmount, 'INR', receipt);
+    
 
     const dbOrder = await orderService.createOrder({
       user_id: userId,
       plan_id: planId,
       payment_gateway_order_id: razorpayOrder.id,
       invoice_id: receipt,
-      amount: plan.price,
+      price: planPrice,
+      gst: gstAmount,
+      amount: totalAmount,
+      quantity: quantity,
+      plan_duration_unit: planDurationUnit,
       currency: 'INR',
       status: 'CREATED',
     });
@@ -45,7 +55,7 @@ class SubscriptionService {
     return {
       order_id: dbOrder.id,
       razorpay_order_id: razorpayOrder.id,
-      amount: Math.round(plan.price * 100),
+      amount: Math.round(totalAmount * 100),
       currency: 'INR',
       key_id: process.env.RAZORPAY_KEY_ID,
       plan: {
@@ -92,6 +102,8 @@ class SubscriptionService {
       await paymentService.createPayment({
         order_id,
         payment_gateway_payment_id: razorpay_payment_id,
+        price: dbOrder.price,
+        gst: dbOrder.gst,
         amount: dbOrder.amount,
         status: 'FAILED',
         failure_reason: 'Signature verification failed',
@@ -118,9 +130,9 @@ class SubscriptionService {
       const start_date = new Date();
       const end_date = new Date(start_date);
       if (plan.duration_unit === 'MONTH') {
-        end_date.setMonth(end_date.getMonth() + plan.duration);
+        end_date.setMonth(end_date.getMonth() + dbOrder.quantity);
       } else {
-        end_date.setFullYear(end_date.getFullYear() + plan.duration);
+        end_date.setFullYear(end_date.getFullYear() + dbOrder.quantity);
       }
 
       const activeSub = await subscriptionRepository.findActiveByUserId(userId);
@@ -142,6 +154,7 @@ class SubscriptionService {
       subscription: {
         id: newSub.id,
         plan_id: newSub.plan_id,
+        plan_name: plan.name,
         start_date: newSub.start_date,
         end_date: newSub.end_date,
         status: newSub.status,
