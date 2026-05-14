@@ -5,6 +5,8 @@ const sequelize = require('./src/models/index');
 
 const PORT = process.env.PORT || 3000;
 
+console.log(`Starting server in ${env} mode...`);
+
 (async () => {
   try {
     await sequelize.authenticate();
