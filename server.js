@@ -6,6 +6,7 @@ const sequelize = require('./src/models/index');
 const PORT = process.env.PORT || 3000;
 
 module.exports = app;
+console.log(`Starting server in ${env} mode...`);
 
 (async () => {
   try {
