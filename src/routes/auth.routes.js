@@ -5,10 +5,11 @@ const { signupSchema, signinSchema, signinMobileSchema, verifyOtpSchema, request
 const authController = require('../controllers/auth.controller');
 const otpController = require('../controllers/otp.controller');
 const authenticate = require('../middlewares/auth.middleware');
+const authLimiter = require('../middlewares/authLimit.middleware');
 
-router.post('/signup', validate(signupSchema), authController.signup, authController.completeSignIn);
+router.post('/signup', authLimiter, validate(signupSchema), authController.signup, authController.completeSignIn);
 router.post('/signin', validate(signinSchema), authController.signin, authController.completeSignIn);
-router.post('/signin-mobile', validate(signinMobileSchema), authController.signinMobile, authController.completeSignIn);
+router.post('/signin-mobile', authLimiter, validate(signinMobileSchema), authController.signinMobile, authController.completeSignIn);
 router.post('/refresh', authController.refreshToken);
 router.post('/logout', authenticate, authController.logout);
 // we will check if we need these endpoints later, for now we will handle OTP within the signup/signin flows
