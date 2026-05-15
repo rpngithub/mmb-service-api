@@ -11,6 +11,7 @@ const businessRoutes = require('./business.routes');
 const userBusinessRoutes = require('./userBusiness.routes');
 const profileRoutes = require('./profile.routes');
 const userDesignRoutes = require('./userDesign.routes');
+const { sendMail } = require('../utils/mailer.util');
 
 const router = express.Router();
 
@@ -18,6 +19,22 @@ const router = express.Router();
 router.get('/ping', (req, res) => {
     res.json({ message: 'API is running' });
 });
+
+// create a email test endpoint to verify email configuration
+router.get('/email-test', async (req, res) => {
+    try {
+        await sendMail({
+            to: 'pramod.ravindran.nair@gmail.com',
+            subject: 'Test Email',
+            html: '<h1>This is a test email</h1>',
+        });
+        res.json({ message: 'Test email sent successfully' });
+    } catch (error) {
+        console.error('Error sending test email:', error);
+        res.status(500).json({ message: 'Error sending test email', error });
+    }
+});
+
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/plans', planRoutes);
