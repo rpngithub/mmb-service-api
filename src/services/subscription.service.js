@@ -3,7 +3,10 @@ const subscriptionRepository = require('../repositories/subscription.repository'
 const orderService = require('./order.service');
 const paymentService = require('./payment.service');
 const planService = require('./plan.service');
+const userService = require('./user.service');
 const razorpayUtil = require('../utils/razorpay.util');
+const { sendMail } = require('../utils/mailer.util');
+const { generateInvoicePdf } = require('../utils/invoice.util');
 
 class SubscriptionService {
   async createSubscription(data) { return subscriptionRepository.create(data); }
@@ -31,8 +34,9 @@ class SubscriptionService {
 
     const receipt = `receipt_${userId}_${planId}_${Date.now()}`;
     const planPrice = parseFloat(plan.price);
-    const quantity = planDurationUnit === 'MONTH' ? 1 : 10;
-    const totalPlanPrice = parseFloat((planPrice * quantity).toFixed(2));
+    const quantity = planDurationUnit === 'MONTH' ? 1 : 12;
+    const amountQuantity = planDurationUnit === 'MONTH' ? 1 : 10; // For yearly plans, we can offer a discount (e.g., 10% off), so quantity is 10 instead of 12 for price calculation
+    const totalPlanPrice = parseFloat((planPrice * amountQuantity).toFixed(2));
     const gstAmount = parseFloat((totalPlanPrice * 0.18).toFixed(2)); // Assuming 18% GST
     const totalAmount = parseFloat((totalPlanPrice + gstAmount).toFixed(2));
     const razorpayOrder = await razorpayUtil.createOrder(totalAmount, 'INR', receipt);
@@ -113,7 +117,7 @@ class SubscriptionService {
       throw err;
     }
 
-    let newSub;
+    let newSub, plan;
     await sequelize.transaction(async () => {
       await orderService.updateOrder(order_id, { status: 'PAID' });
 
@@ -124,7 +128,7 @@ class SubscriptionService {
         status: 'SUCCESS',
       });
 
-      const plan = await planService.getPlanById(dbOrder.plan_id);
+      plan = await planService.getPlanById(dbOrder.plan_id);
       if (!plan) throw new Error('Plan not found');
 
       const start_date = new Date();
@@ -148,6 +152,19 @@ class SubscriptionService {
         status: 'active',
       });
     });
+
+    try {
+      const user = await userService.getUserById(userId);
+      const pdfBuffer = await generateInvoicePdf({ user, plan, order: dbOrder, subscription: newSub });
+      await sendMail({
+        to: user.email,
+        subject: 'Your MakeMyBrand Subscription Invoice',
+        html: `<p>Hi ${user.name},</p><p>Your subscription to <b>${plan.name}</b> is now active. Please find your invoice attached.</p><p>Thank you for choosing MakeMyBrand!</p>`,
+        attachments: [{ filename: `invoice_${dbOrder.invoice_id}.pdf`, content: pdfBuffer }],
+      });
+    } catch (emailErr) {
+      console.error('Invoice email failed:', emailErr.message);
+    }
 
     return {
       message: 'Payment verified. Subscription activated.',
