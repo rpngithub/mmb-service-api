@@ -21,13 +21,16 @@ exports.signup = async (req, res, next) => {
 
     if (!transaction_id) {
       // Step 1: register and send OTP
+      console.log(`Signup attempt for mobile: ${mobile}, email: ${email}`);
       let user = await userService.getUserByMobile(mobile);
 
       if (user) {
+        console.log(`Existing user found for mobile ${mobile}:`, { id: user.mnemonic_id, email: user.email, is_active: user.is_active });
         // Mobile exists but user never completed OTP — allow retry
         if (user.is_active) return res.status(400).json({ error: 'Mobile number already registered' });
       } else {
         // Check email separately only when mobile is new
+        console.log(`Checking email ${email} for new user registration`);
         const existingEmail = await userService.getUserByEmail(email);
         if (existingEmail && existingEmail.is_active) return res.status(400).json({ error: 'Email already registered' });
 
@@ -37,6 +40,7 @@ exports.signup = async (req, res, next) => {
       const generatedOtp = otpGenerator.generateOTP();
       const otpRecord = await userOtpService.createOtp(generatedOtp, mobile, 10);
       if (process.env.NODE_ENV === 'production') {
+        console.log(`Sending OTP to ${mobile} for user ${user.mnemonic_id}`);
         const sendResult = await otpGenerator.sendOTP(mobile, generatedOtp);
         console.log('OTP send result:', sendResult);
         return res.status(201).json({ user_id: user.mnemonic_id, transaction_id: otpRecord.transaction_id });
