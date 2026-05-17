@@ -11,6 +11,7 @@ const businessRoutes = require('./business.routes');
 const userBusinessRoutes = require('./userBusiness.routes');
 const profileRoutes = require('./profile.routes');
 const userDesignRoutes = require('./userDesign.routes');
+const inquiryRoutes = require('./inquiry.routes');
 const { sendMail } = require('../utils/mailer.util');
 
 const router = express.Router();
@@ -49,5 +50,6 @@ router.use('/businesses', businessRoutes);
 router.use('/user-businesses', userBusinessRoutes);
 router.use('/profile', profileRoutes);
 router.use('/user-designs', userDesignRoutes);
+router.use('/inquiries', inquiryRoutes);
 
 module.exports = router;
