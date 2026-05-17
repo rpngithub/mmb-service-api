@@ -121,7 +121,7 @@ class SubscriptionService {
     await sequelize.transaction(async () => {
       await orderService.updateOrder(order_id, { status: 'PAID' });
 
-      await paymentService.createPayment({
+      const payment = await paymentService.createPayment({
         order_id,
         payment_gateway_payment_id: razorpay_payment_id,
         amount: dbOrder.amount,
@@ -150,6 +150,7 @@ class SubscriptionService {
         start_date,
         end_date,
         status: 'active',
+        payment_id: payment.id,
       });
     });
 
