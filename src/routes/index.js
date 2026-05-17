@@ -16,7 +16,24 @@ const { sendMail } = require('../utils/mailer.util');
 
 const router = express.Router();
 
-// need a ping endpoint for health checks
+/**
+ * @swagger
+ * /ping:
+ *   get:
+ *     tags: [Health]
+ *     summary: Health check
+ *     responses:
+ *       200:
+ *         description: API is running
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: API is running
+ */
 router.get('/ping', (req, res) => {
     res.json({ message: 'API is running' });
 });
